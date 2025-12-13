@@ -7,13 +7,13 @@
     justify-content: center;
     /* center container horizontally */
     align-items: flex-start;
-    padding: 0 0;
+    padding: 0 4rem;
     /* a little breathing room */
 }
 
 /* Centered white container */
 .container {
-    width: 960px;
+    width: 100%;
     background: #fff;
     min-height: 100%;
     /* ensure white stretches on tall pages */

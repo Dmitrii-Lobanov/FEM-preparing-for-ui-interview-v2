@@ -9,8 +9,12 @@ import { AccordionExample } from "./done/accordion/accordion.react";
 import { TabsExample } from "./done/tabs/tabs.react";
 import { TooltipExample } from "./done/tooltip/tooltip.react";
 import { TableExample } from "./done/table/table.react";
-import { MarkdownExample } from "./in-progress/markdown/markdown.react";
+import { MarkdownExample } from "./done/markdown/markdown.react";
+import { ProgressBarExample } from "./done/progress-bar/progress-bar.react";
 import { SquareGameExample } from "./done/square-game/square-game.react";
+import { UploadComponentExample } from "./done/upload-component/upload-component.react";
+import { InfiniteCanvas } from "./in-progress/infinite-canvas/infinite-canvas.react";
+import { GalleryExample } from "./in-progress/gallery/gallery.react";
 
 
 const EXAMPLES = {
@@ -54,13 +58,51 @@ const EXAMPLES = {
         name: "Square Game",
         component: SquareGameExample,
     },
+    progressBar: {
+        id: "progressBar",
+        name: "Progress Bar",
+        component: ProgressBarExample,
+    },
+    uploadComponent: {
+        id: "uploadComponent",
+        name: "Upload Component",
+        component: UploadComponentExample,
+    },
+    infiniteCanvas: {
+        id: "infiniteCanvas",
+        name: "Infinite Canvas",
+        component: InfiniteCanvas,
+    },
+    gallery: {
+        id: "gallery",
+        name: "Gallery",
+        component: GalleryExample,
+    },
 } as const;
 
 type ExampleId = keyof typeof EXAMPLES;
 
 export default function App() {
-    const [selectedExampleId, setSelectedExampleId] = useState<ExampleId>("tabs");
+    // Read initial selection from URL param
+    const getInitialExample = (): ExampleId => {
+        const params = new URLSearchParams(window.location.search);
+        const example = params.get('example');
+        if (example && example in EXAMPLES) {
+            return example as ExampleId;
+        }
+        return "tabs";
+    };
+
+    const [selectedExampleId, setSelectedExampleId] = useState<ExampleId>(getInitialExample);
     const ExampleComponent = EXAMPLES[selectedExampleId].component;
+
+    // Update URL when selection changes
+    const handleSelectExample = (id: ExampleId) => {
+        setSelectedExampleId(id);
+        const url = new URL(window.location.href);
+        url.searchParams.set('example', id);
+        window.history.replaceState({}, '', url.toString());
+    };
 
     return (
         <div className={css.app}>
@@ -72,7 +114,7 @@ export default function App() {
                             <li key={id}>
                                 <button
                                     className={selectedExampleId === id ? css.active : ""}
-                                    onClick={() => setSelectedExampleId(id)}
+                                    onClick={() => handleSelectExample(id)}
                                 >
                                     {EXAMPLES[id].name}
                                 </button>

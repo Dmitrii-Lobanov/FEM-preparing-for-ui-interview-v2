@@ -1,0 +1,187 @@
+.container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    background-color: #f0f0f0;
+    cursor: grab;
+    user-select: none;
+}
+
+.container:active {
+    cursor: grabbing;
+}
+
+.transformLayer {
+    transform-origin: 0 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    will-change: transform;
+    transform-style: preserve-3d;
+    -webkit-font-smoothing: subpixel-antialiased;
+    text-rendering: geometricPrecision;
+}
+
+/* Minimap Styles */
+.minimap {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.minimapContent {
+    transform-origin: 0 0;
+    position: absolute;
+}
+
+.minimapViewport {
+    position: absolute;
+    border: 2px solid #1890ff;
+    background: rgba(24, 144, 255, 0.1);
+    pointer-events: none;
+}
+
+.debugInfo {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+/* Toolbar */
+.toolbar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    gap: 8px;
+    background: white;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.toolbarItem {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: grab;
+    background: #fafafa;
+    transition: all 0.2s;
+}
+
+.toolbarItem:hover {
+    background: #e6f7ff;
+    border-color: #91d5ff;
+}
+
+.toolbarItem:active {
+    cursor: grabbing;
+}
+
+/* Canvas Elements */
+.shape {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: move;
+}
+
+/* Stickers */
+.stickerYellow {
+    background: #fffbe6;
+    border: 1px solid #fadb14;
+    border-radius: 4px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 12px;
+}
+
+.stickerPink {
+    background: #fff0f6;
+    border: 1px solid #eb2f96;
+    border-radius: 4px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 12px;
+}
+
+.stickerBlue {
+    background: #e6f7ff;
+    border: 1px solid #1890ff;
+    border-radius: 4px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 12px;
+}
+
+/* Text Elements */
+.textNormal {
+    background: transparent;
+    font-size: 14px;
+    color: #333;
+    padding: 4px;
+}
+
+.textHeading {
+    background: transparent;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    padding: 4px;
+}
+
+.shapeSelected {
+    outline: 2px dashed #1890ff;
+    outline-offset: 2px;
+}
+
+.resizeHandle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: white;
+    border: 2px solid #1890ff;
+    border-radius: 2px;
+    pointer-events: auto;
+}
+
+.resizeHandle.nw {
+    top: -4px;
+    left: -4px;
+    cursor: nwse-resize;
+}
+
+.resizeHandle.ne {
+    top: -4px;
+    right: -4px;
+    cursor: nesw-resize;
+}
+
+.resizeHandle.sw {
+    bottom: -4px;
+    left: -4px;
+    cursor: nesw-resize;
+}
+
+.resizeHandle.se {
+    bottom: -4px;
+    right: -4px;
+    cursor: nwse-resize;
+}

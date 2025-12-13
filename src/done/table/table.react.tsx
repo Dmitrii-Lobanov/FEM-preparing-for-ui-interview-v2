@@ -1,5 +1,5 @@
-import React, { ChangeEventHandler, useEffect, useEffectEvent, useRef, useState, useDeferredValue, useMemo } from 'react';
-import { fetchStocks, TPaginatedAPIResponse, type Stock } from './api';
+import React, { type ChangeEventHandler, useEffect, useEffectEvent, useRef, useState, useDeferredValue, useMemo } from 'react';
+import { fetchStocks, type TPaginatedAPIResponse, type Stock } from './api';
 import styles from './table.module.css';
 import flex from '../../utilities/flex.module.css'
 import { cx } from '../../utilities/utility';
@@ -95,7 +95,7 @@ export function TableExample() {
     const [query, setQuery] = useState('');
     const defferedQuery = useDeferredValue(query);
 
-    const intervalID = useRef<number | undefined>(undefined);
+    const intervalID = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
     const fetch = useEffectEvent(() => {
         fetchStocks(page).then(setData)

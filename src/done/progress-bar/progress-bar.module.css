@@ -1,0 +1,40 @@
+.progress-bar {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+    height: 1.5rem;
+    background: lightgrey;
+    border-radius: 2px;
+    box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.progress {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #56a3f5;
+    transition: transform 0.3s linear;
+}
+
+.label,
+.labelOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.label {
+    color: #444;
+    z-index: 1;
+}
+
+.labelOverlay {
+    color: white;
+    z-index: 2;
+    transition: clip-path 0.3s linear;
+}
