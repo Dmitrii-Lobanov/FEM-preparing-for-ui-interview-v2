@@ -70,3 +70,9 @@ cloned.self === cloned // true
 1. Use a `Map` cache to track cloned objects for circular reference handling
 2. Store the clone in cache **before** recursing to handle cycles
 3. Use `forEach` for iterating over `Map` and `Set`
+
+## Run Tests
+
+```bash
+bun test src/problems/vanila/06-deep-clone/test/deep-clone.test.ts
+```
