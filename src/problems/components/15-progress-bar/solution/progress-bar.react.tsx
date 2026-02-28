@@ -36,17 +36,17 @@ export const ProgressBar = ({ value, max = 100, label }: ProgressBarProps) => {
       aria-valuemin={0}
       aria-valuemax={max}
       aria-label={label ?? `Progress: ${percentage}%`}
-      className={css['progress-bar']}
+      className={cx(css['progress-bar'], flex.pRel, flex.w100)}
     >
-      <div className={css.progress} style={{ transform: `translateX(-${100 - percentage}%)` }} />
+      <div className={cx(css.progress, flex.pRel, flex.wh100)} style={{ transform: `translateX(-${100 - percentage}%)` }} />
       {label && (
-        <div className={cx(css.label, flex.flexRowCenter, flex.itemsCenter, flex.justifyCenter)}>
+        <div className={cx(css.label, flex.flexRowCenter, flex.itemsCenter, flex.justifyCenter, flex.pAbs, flex.inset0, flex.z1)}>
           {label}
         </div>
       )}
       {label && (
         <div
-          className={cx(css.labelOverlay, flex.flexRowCenter, flex.itemsCenter, flex.justifyCenter)}
+          className={cx(css.labelOverlay, flex.flexRowCenter, flex.itemsCenter, flex.justifyCenter, flex.pAbs, flex.inset0)}
           style={{ clipPath: `inset(0 ${100 - percentage}% 0 0)` }}
           aria-hidden="true"
         >
