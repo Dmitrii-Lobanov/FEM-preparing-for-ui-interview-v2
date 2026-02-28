@@ -56,3 +56,9 @@ dog instanceof Animal // true
 3. Use `Object.setPrototypeOf()` to set up prototype chains
 4. Set `SubType.prototype.__proto__` → `SuperType.prototype` for inheritance
 5. Set `MyType.__proto__` → `SuperType` for static inheritance
+
+## Run Tests
+
+```bash
+bun test src/problems/vanila/04-es5-extends/test/es5-extends.test.ts
+```
