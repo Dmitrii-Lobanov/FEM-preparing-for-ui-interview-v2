@@ -74,3 +74,9 @@ Your implementation should return `true` for all valid structural comparisons in
 2. Use a `Map` to track visited object pairs for circular reference detection
 3. Store the pair `(a, b)` before recursing, not after
 4. Check `store.has(a)` before comparing `store.get(a) === b` to avoid false positives with `undefined`
+
+## Run Tests
+
+```bash
+bun test src/problems/vanila/05-deep-equals/test/deep-equals.test.ts
+```
