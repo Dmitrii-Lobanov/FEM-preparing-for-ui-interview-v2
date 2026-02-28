@@ -52,7 +52,7 @@ export const UploadComponent = () => {
   const { status, progress, speed, error, remainingTimeMs } = uploadState
 
   return (
-    <div className={css.container}>
+    <div className={cx(flex.shadow1, flex.br8, flex.bgWhite10, css.container)}>
       <h3>Real Upload Component</h3>
 
       <input
@@ -63,7 +63,7 @@ export const UploadComponent = () => {
       />
 
       {!file && (
-        <button onClick={() => fileInputRef.current?.click()} className={css.selectButton}>
+        <button onClick={() => fileInputRef.current?.click()} className={cx(css.selectButton, flex.cWhite10, flex.bNone)}>
           Select File to Upload
         </button>
       )}
@@ -102,17 +102,17 @@ export const UploadComponent = () => {
 
           <div className={cx(flex.flexRowGap8, flex.justifyEnd)}>
             {status === 'uploading' && (
-              <button onClick={uploadControls.pause} className={css.controlButton}>
+              <button onClick={uploadControls.pause} className={cx(css.controlButton, flex.br4)}>
                 Pause
               </button>
             )}
             {status === 'paused' && (
-              <button onClick={handleResume} className={css.controlButton}>
+              <button onClick={handleResume} className={cx(css.controlButton, flex.br4)}>
                 Resume
               </button>
             )}
             {status !== 'completed' && (
-              <button onClick={handleCancel} className={cx(css.controlButton, css.cancelButton)}>
+              <button onClick={handleCancel} className={cx(css.controlButton, css.cancelButton, flex.br4)}>
                 Cancel
               </button>
             )}
@@ -122,7 +122,7 @@ export const UploadComponent = () => {
                   handleCancel()
                   fileInputRef.current?.click()
                 }}
-                className={css.controlButton}
+                className={cx(css.controlButton, flex.br4)}
               >
                 Upload Another
               </button>
