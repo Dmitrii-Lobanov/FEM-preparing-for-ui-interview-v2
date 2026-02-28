@@ -1,5 +1,7 @@
 import { AbstractComponent } from '../../00-abstract-component/component'
 import css from './calculator.module.css'
+import flex from '@course/styles'
+import cx from '@course/cx'
 
 interface ICalculatorState {
   value: string
@@ -38,35 +40,35 @@ export class Calculator extends AbstractComponent<{}> {
       const buttons = this.container?.querySelectorAll(`.${css.button}`)
       buttons?.forEach((btn) => {
         if ((btn as HTMLElement).dataset.label !== 'AC') {
-          ;(btn as HTMLButtonElement).disabled = true
+          ; (btn as HTMLButtonElement).disabled = true
         }
       })
     } else {
       const buttons = this.container?.querySelectorAll(`.${css.button}:disabled`)
       buttons?.forEach((btn) => {
-        ;(btn as HTMLButtonElement).disabled = false
+        ; (btn as HTMLButtonElement).disabled = false
       })
     }
   }
 
   toHTML() {
     return `
-            <div class="${css.calculator}">
-                <output class="${css.output}">${this.state.value}</output>
-                <section class="${css.keypad}">
+            <div class="${cx(flex.bgBlack10, flex.w100, css.calculator)}">
+                <output class="${cx(flex.w100, flex.cWhite10, css.output)}">${this.state.value}</output>
+                <section class="${cx(css.keypad, flex.w100)}">
                     ${Array.from(BUTTONS.values())
-                      .map(
-                        (btn) => `
+        .map(
+          (btn) => `
                         <button 
-                            class="${css.button}" 
+                            class="${cx(flex.bNone, flex.cWhite10, flex.br128, css.button)}" 
                             data-label="${btn.label}"
                             ${this.state.value === INVALID_VALUE && btn.label !== 'AC' ? 'disabled' : ''}
                         >
                             ${btn.label}
                         </button>
                     `,
-                      )
-                      .join('')}
+        )
+        .join('')}
                 </section>
             </div>
         `
