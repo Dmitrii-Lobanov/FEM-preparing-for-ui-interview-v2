@@ -42,3 +42,37 @@ class TreeNode {
 export const renderTreeSelect = (paths: string[], clicks: string[]): string => {
   throw new Error('Not implemented')
 }
+
+// --- Examples ---
+// Uncomment to test your implementation:
+
+// Example 1: Basic tree rendering (no clicks)
+const paths1 = ['fruits/apple', 'fruits/banana', 'vegetables/carrot']
+console.log(renderTreeSelect(paths1, []))
+// Expected output:
+// [ ]fruits
+// .[ ]apple
+// .[ ]banana
+// [ ]vegetables
+// .[ ]carrot
+
+// Example 2: Select a leaf node → parent becomes partial
+console.log(renderTreeSelect(['fruits/apple', 'fruits/banana'], ['apple']))
+// Expected output:
+// [o]fruits
+// .[v]apple
+// .[ ]banana
+
+// Example 3: Select all children → parent becomes selected
+console.log(renderTreeSelect(['fruits/apple', 'fruits/banana'], ['apple', 'banana']))
+// Expected output:
+// [v]fruits
+// .[v]apple
+// .[v]banana
+
+// Example 4: Select parent → all children become selected, then deselect one child
+console.log(renderTreeSelect(['a/b', 'a/c'], ['a', 'b']))
+// Expected output:
+// [o]a
+// .[ ]b
+// .[v]c
