@@ -7,17 +7,17 @@ export type { CellId } from '../../utilities/google-sheet-parser'
 
 export class TableEngine {
   #raw: Map<CellId, string> = new Map()
-  #value: Map<CellId, string> = new Map()
+  #val: Map<CellId, string> = new Map()
   #deps: Map<CellId, Set<CellId>> = new Map()
-  #rev: Map<CellId, Set<CellId>> = new Map()
+  #reverseDeps: Map<CellId, Set<CellId>> = new Map()
   #compiled: Map<CellId, Compiled> = new Map()
 
   setRaw(id: CellId, raw: string): { changed: CellId[] } {
     this.#raw.set(id, raw)
-    this.#value.set(id, raw)
+    this.#val.set(id, raw)
 
     const deps = this.#compile(id, raw)
-    this.#setDeps(id, deps)
+    this.setDeps(id, deps)
 
     const changed = this.#recomputeFrom(id)
     return { changed }
@@ -28,18 +28,10 @@ export class TableEngine {
   }
 
   getValue(id: CellId): string {
-    return this.#value.get(id) ?? ''
+    return this.#val.get(id) ?? ''
   }
 
-  getDeps(id: CellId): ReadonlySet<CellId> {
-    return this.#getDeps(id)
-  }
-
-  getRevDeps(id: CellId): ReadonlySet<CellId> {
-    return this.#getRevDeps(id)
-  }
-
-  #getDeps(id: CellId): Set<CellId> {
+  getDeps(id: CellId): Set<CellId> {
     let s = this.#deps.get(id)
     if (!s) {
       s = new Set<CellId>()
@@ -48,23 +40,23 @@ export class TableEngine {
     return s
   }
 
-  #getRevDeps(id: CellId): Set<CellId> {
-    let s = this.#rev.get(id)
+  getRevDeps(id: CellId): Set<CellId> {
+    let s = this.#reverseDeps.get(id)
     if (!s) {
       s = new Set<CellId>()
-      this.#rev.set(id, s)
+      this.#reverseDeps.set(id, s)
     }
     return s
   }
 
-  #setDeps(id: CellId, nextDeps: Set<CellId>) {
-    const prevDeps = this.#getDeps(id)
+  setDeps(id: CellId, nextDeps: Set<CellId>) {
+    const prevDeps = this.getDeps(id)
 
     for (const dep of prevDeps) {
-      if (!nextDeps.has(dep)) this.#getRevDeps(dep).delete(id)
+      if (!nextDeps.has(dep)) this.getRevDeps(dep).delete(id)
     }
     for (const dep of nextDeps) {
-      if (!prevDeps.has(dep)) this.#getRevDeps(dep).add(id)
+      if (!prevDeps.has(dep)) this.getRevDeps(dep).add(id)
     }
 
     this.#deps.set(id, nextDeps)
@@ -104,7 +96,7 @@ export class TableEngine {
     // TODO: Step 1 - Find Affected Nodes
     // 1. Maintain an `affected` Set to track visited nodes.
     // 2. Using a `queue` array, push the start cell onto it.
-    // 3. Iteratively loop: push every cell's `#getRevDeps()` onto the backlog until all downstream nodes are exhausted.
+    // 3. Iteratively loop: push every cell's `getRevDeps()` onto the backlog until all downstream nodes are exhausted.
     // 4. Return the `affected` set.
     throw new Error('TODO: Collect all nodes transitively affected via reverse deps')
   }

@@ -1,53 +1,67 @@
-import type { CellId } from '../../../utilities/google-sheet-parser'
+import type {CellId, Compiled} from '../../../utilities/google-sheet-parser'
 export type { CellId } from '../../../utilities/google-sheet-parser'
 
+/**
+ * Basic spreadsheet engine that stores raw input and computed values for each cell.
+ *
+ * This is the simplest version — no formula compilation, no dependency tracking,
+ * no recomputation. `setRaw` stores the input as-is and treats it as the display value.
+ *
+ * Maps reserved for future use:
+ * - #deps: tracks which cells a given cell depends on (upstream)
+ * - #reverseDeps: tracks which cells depend on a given cell (downstream)
+ * - #compiled: stores parsed/compiled formula representations
+ */
 export class TableEngine {
-  #raw: Map<CellId, string> = new Map()
-  #value: Map<CellId, string> = new Map()
-  #deps: Map<CellId, Set<CellId>> = new Map()
-  #rev: Map<CellId, Set<CellId>> = new Map()
+  /* Raw user input for each cell (e.g. "=A1+B1" or "42") */
+  #raw: Map<CellId, string> = new Map();
+  /* Computed display value for each cell (in this basic version, same as raw) */
+  #val: Map<CellId, string> = new Map();
+  /* Forward dependencies: cell → set of cells it depends on */
+  #deps: Map<CellId, Set<CellId>> = new Map();
+  /* Reverse dependencies: cell → set of cells that depend on it */
+  #reverseDeps: Map<CellId, Set<CellId>> = new Map();
+  /* Compiled formula AST for each cell */
+  #compiled: Map<CellId, Compiled> = new Map();
 
-  setRaw(id: CellId, raw: string): { changed: CellId[] } {
-    this.#raw.set(id, raw)
-
-    // In basic step, value is just the raw text
-    this.#value.set(id, raw)
-
-    // For now, no dependent tracking or recalculation in 19.1
-    return { changed: [id] }
+  /**
+   * Sets the raw input for a cell and updates its display value.
+   * Returns the list of cells whose display value changed (just the cell itself).
+   * In later versions, this will compile formulas, update deps, and recompute dependents.
+   */
+  setRaw(_id: CellId, _raw: string): { changed: CellId[] } {
+    this.#raw.set(_id, _raw);
+    this.#val.set(_id, _raw);
+    return {changed: [_id]}
   }
 
-  getRaw(id: CellId): string {
-    return this.#raw.get(id) ?? ''
+  /** Returns the raw user input for a cell, or empty string if unset. */
+  getRaw(_id: CellId): string {
+    return this.#raw.get(_id) ?? '';
   }
 
-  getValue(id: CellId): string {
-    return this.#value.get(id) ?? ''
+  /** Returns the computed display value for a cell, or empty string if unset. */
+  getValue(_id: CellId): string {
+    return this.#val.get(_id) ?? '';
   }
 
-  getDeps(id: CellId): ReadonlySet<CellId> {
-    return this.#getDeps(id)
+  /**
+   * Returns the set of cells that the given cell depends on (forward deps).
+   * Lazily initializes an empty set if none exists.
+   */
+  getDeps(_id: CellId): ReadonlySet<CellId> {
+    const deps = this.#deps.get(_id) ?? new Set();
+    this.#deps.set(_id, deps);
+    return deps;
   }
 
-  getRevDeps(id: CellId): ReadonlySet<CellId> {
-    return this.#getRevDeps(id)
-  }
-
-  #getDeps(id: CellId): Set<CellId> {
-    let s = this.#deps.get(id)
-    if (!s) {
-      s = new Set<CellId>()
-      this.#deps.set(id, s)
-    }
-    return s
-  }
-
-  #getRevDeps(id: CellId): Set<CellId> {
-    let s = this.#rev.get(id)
-    if (!s) {
-      s = new Set<CellId>()
-      this.#rev.set(id, s)
-    }
-    return s
+  /**
+   * Returns the set of cells that depend on the given cell (reverse deps).
+   * Lazily initializes an empty set if none exists.
+   */
+  getRevDeps(_id: CellId): ReadonlySet<CellId> {
+    const deps = this.#reverseDeps.get(_id) ?? new Set();
+    this.#reverseDeps.set(_id, deps);
+    return deps;
   }
 }

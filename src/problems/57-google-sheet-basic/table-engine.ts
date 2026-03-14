@@ -8,12 +8,12 @@ export class TableEngine {
   // TODO: Step 1 - Setup Hash Maps
   // Instantiate 4 Map structures:
   // - #raw: What the user typed ("10" or "=A1+5")
-  // - #value: The computed mathematical result ("10" or "15")
+  // - #val: The computed mathematical result ("10" or "15")
   // - #deps: Direct dependencies (A1 requires B1 to compute)
-  // - #rev: Reverse dependencies (B1 affects A1, so A1 recomputes if B1 changes)
+  // - #reverseDeps: Reverse dependencies (B1 affects A1, so A1 recomputes if B1 changes)
   setRaw(_id: CellId, _raw: string): { changed: CellId[] } {
     // TODO: Step 4 - Basic Write API
-    // Blindly set #raw and #value maps without any compilation or error checking yet.
+    // Blindly set #raw and #val maps without any compilation or error checking yet.
     // Return { changed: [id] }.
     throw new Error('TODO: Implement')
   }

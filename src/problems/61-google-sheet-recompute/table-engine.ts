@@ -14,16 +14,16 @@ export type { CellId } from '../../utilities/google-sheet-parser'
 
 export class TableEngine {
   #raw: Map<CellId, string> = new Map()
-  #value: Map<CellId, string> = new Map()
+  #val: Map<CellId, string> = new Map()
   #deps: Map<CellId, Set<CellId>> = new Map()
-  #rev: Map<CellId, Set<CellId>> = new Map()
+  #reverseDeps: Map<CellId, Set<CellId>> = new Map()
   #compiled: Map<CellId, Compiled> = new Map()
 
   setRaw(id: CellId, raw: string): { changed: CellId[] } {
     this.#raw.set(id, raw)
 
     const deps = this.#compile(id, raw)
-    this.#setDeps(id, deps)
+    this.setDeps(id, deps)
 
     const changed = this.#recomputeFrom(id)
     return { changed }
@@ -34,18 +34,10 @@ export class TableEngine {
   }
 
   getValue(id: CellId): string {
-    return this.#value.get(id) ?? ''
+    return this.#val.get(id) ?? ''
   }
 
-  getDeps(id: CellId): ReadonlySet<CellId> {
-    return this.#getDeps(id)
-  }
-
-  getRevDeps(id: CellId): ReadonlySet<CellId> {
-    return this.#getRevDeps(id)
-  }
-
-  #getDeps(id: CellId): Set<CellId> {
+  getDeps(id: CellId): Set<CellId> {
     let s = this.#deps.get(id)
     if (!s) {
       s = new Set<CellId>()
@@ -54,23 +46,23 @@ export class TableEngine {
     return s
   }
 
-  #getRevDeps(id: CellId): Set<CellId> {
-    let s = this.#rev.get(id)
+  getRevDeps(id: CellId): Set<CellId> {
+    let s = this.#reverseDeps.get(id)
     if (!s) {
       s = new Set<CellId>()
-      this.#rev.set(id, s)
+      this.#reverseDeps.set(id, s)
     }
     return s
   }
 
-  #setDeps(id: CellId, nextDeps: Set<CellId>) {
-    const prevDeps = this.#getDeps(id)
+  setDeps(id: CellId, nextDeps: Set<CellId>) {
+    const prevDeps = this.getDeps(id)
 
     for (const dep of prevDeps) {
-      if (!nextDeps.has(dep)) this.#getRevDeps(dep).delete(id)
+      if (!nextDeps.has(dep)) this.getRevDeps(dep).delete(id)
     }
     for (const dep of nextDeps) {
-      if (!prevDeps.has(dep)) this.#getRevDeps(dep).add(id)
+      if (!prevDeps.has(dep)) this.getRevDeps(dep).add(id)
     }
 
     this.#deps.set(id, nextDeps)
@@ -114,7 +106,7 @@ export class TableEngine {
       const id = queue[i]!
       if (affected.has(id)) continue
       affected.add(id)
-      for (const dep of this.#getRevDeps(id)) queue.push(dep)
+      for (const dep of this.getRevDeps(id)) queue.push(dep)
     }
 
     return affected
@@ -125,7 +117,7 @@ export class TableEngine {
 
     for (const id of affected) {
       let deg = 0
-      for (const dep of this.#getDeps(id)) {
+      for (const dep of this.getDeps(id)) {
         if (affected.has(dep)) deg++
       }
       inDegree.set(id, deg)
@@ -141,7 +133,7 @@ export class TableEngine {
       const id = queue[i]!
       order.push(id)
 
-      for (const dependent of this.#getRevDeps(id)) {
+      for (const dependent of this.getRevDeps(id)) {
         if (!affected.has(dependent)) continue
         const next = (inDegree.get(dependent) ?? 0) - 1
         inDegree.set(dependent, next)
@@ -160,14 +152,6 @@ export class TableEngine {
     return { order, cyclic }
   }
 
-  #parseNumericCellValue(id: CellId): { ok: true; n: number } | { ok: false; err: string } {
-    const v = this.#value.get(id)
-    if (!v) return { ok: true, n: 0 }
-    const n = Number(v)
-    if (Number.isNaN(n)) return { ok: false, err: v }
-    return { ok: true, n }
-  }
-
   _evalCell(id: CellId): string {
     const compiled = this.#compiled.get(id)
 
@@ -178,7 +162,7 @@ export class TableEngine {
       return ERROR
     }
 
-    return evalRpn(compiled.rpn, (refId) => this.#parseNumericCellValue(refId))
+    return evalRpn(compiled.rpn, (refId) => this.getValue(refId))
   }
 
   #recomputeFrom(_start: CellId): CellId[] {
