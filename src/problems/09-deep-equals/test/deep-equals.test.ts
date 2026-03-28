@@ -273,6 +273,19 @@ implementations.forEach(({ name, fn }) => {
           expect(deepEquals(obj1, obj3)).toBe(true)
         })
 
+        it('should handle circular references with different cycle shapes', () => {
+          const a: any = {}
+          a.self = a
+
+          const b: any = {}
+          const c: any = {}
+
+          b.self = c
+          c.self = b
+
+          expect(deepEquals(a, b)).toBe(true)
+        })
+
         it('should handle deeply nested circular references', () => {
           const obj1: any = { level1: { level2: { level3: {} } } }
           obj1.level1.level2.level3.back = obj1
