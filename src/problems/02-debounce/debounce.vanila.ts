@@ -1,5 +1,10 @@
 // bun test src/problems/02-debounce/test/debounce.test.ts
 
+/**
+ * @param fn - function to debounce
+ * @param delay - delay in milliseconds
+ * @returns debounced function
+ */
 export function debounce<F extends (...args: any[]) => void>(
   fn: F,
   delay: number,
