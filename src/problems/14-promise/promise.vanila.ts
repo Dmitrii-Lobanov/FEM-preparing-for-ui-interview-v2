@@ -6,135 +6,118 @@ const PENDING: PromiseStatus = 'pending'
 const FULFILLED: PromiseStatus = 'fulfilled'
 const REJECTED: PromiseStatus = 'rejected'
 
-// Step 1: Define types and constants
 type Executor<T> = (
   resolve: (value: T | PromiseLike<T>) => void,
-  reject: (reason: any) => void,
+  reject: (reason?: any) => void,
 ) => void
 
-type OnFulfilled<T, R> = ((value: T) => R | PromiseLike<R>) | null | undefined
+type OnFulfilled<T, R> = ((value: T) => R | PromiseLike<R>) | undefined | null
+type OnRejected<R> = ((reason: any) => R | PromiseLike<R>) | undefined | null
 
-type OnRejected<R> = ((reason: any) => R | PromiseLike<R>) | null | undefined
+interface Handler<T> {
+  onFulfilled: (value: T) => any
+  onRejected: (reason: any) => any
+  resolve: (value: any) => void
+  reject: (reason: any) => void
+}
 
-//  - Handler
-type Handler = (
-  onFulfilled: (value: any) => void,
-  onRejected?: (reason: any) => void,
-  resolve: (value: any) => void,
-  reject: (reason: any) => void,
-) => void
+export class MyPromise<T = any> {
+  #handlers: Handler<T>[] = []
+  #status: PromiseStatus = PENDING
+  #value: T | any
+  #isResolved: boolean = false
 
-//  - Update MyPromise<T> with types above
-// Step 2: Define class fields
-//  - handlers, status, value, isResolved
-// Step 3: Implement settle, resolve, reject
-// Step 4: constructor + Executor
-// - Run tests for resolving / rejecting
-// Step 5: Implement then<R> and catch
-// Step 6: Implement handler execution
-// - Run tests for then / catch and chaining
-// Step 7: static resolve, static reject
-// - Run tests for statics
+  #settle = (v: T | any, status: PromiseStatus = FULFILLED): void => {
+    if (this.#isResolved) return
 
-export class MyPromise<T> {
-  value: T | null = null
-  status: PromiseStatus = PENDING
-  handlers: Handler[] = []
-  isResolved: boolean = false
+    this.#isResolved = true
 
-  constructor(executor: Executor<T>) {
-    try {
-      executor(this.resolve, this.reject)
-    } catch (error) {
-      this.reject(error)
+    const update = (v: T | any): void => {
+      this.#value = v
+      this.#status = status
+      this.#execute()
     }
-  }
-
-  then<R = T>(onFulfilled?: OnFulfilled<T, R>, onRejected?: OnRejected<R>): MyPromise<R> {
-    const handler: Handler = {
-      onFulfilled: typeof onFulfilled === 'function' ? onFulfilled : (v) => v,
-      onRejected:
-        typeof onRejected === 'function'
-          ? onRejected
-          : (v) => {
-              throw v
-            },
-      resolve: () => {},
-      reject: () => {},
-    }
-
-    const promise = new MyPromise<R>((resolve, reject) => {
-      handler.resolve = resolve
-      handler.reject = reject
-    })
-
-    this.handlers.push(handler)
-
-    if (this.status !== PENDING) {
-      this.execute()
-    }
-
-    return promise
-  }
-
-  #settle = (value: T | PromiseLike<T>, status = FULFILLED) => {
-    if (this.isResolved) return
-
-    this.isResolved = true
-
-    const update = (value: T) => {
-      this.value = value
-      this.status = status
-      this.execute()
-    }
-
-    if (value instanceof MyPromise) {
-      value.then(update)
+    if (v instanceof MyPromise && status === FULFILLED) {
+      v.then(update)
     } else {
-      update(value as T)
+      update(v)
     }
   }
 
-  execute = () => {
-    for (const { onFulfilled, onRejected, resolve, reject } of this.handlers) {
-      const handler = this.status === FULFILLED ? onFulfilled : onRejected
+  #resolve = (v: T | PromiseLike<T>): void => void this.#settle(v, FULFILLED)
+
+  #reject = (e: any): void => void this.#settle(e, REJECTED)
+
+  #execute = (): void => {
+    const handlers = this.#handlers
+
+    for (const { onFulfilled, onRejected, resolve, reject } of handlers) {
+      const handler = this.#status === FULFILLED ? onFulfilled : onRejected
 
       queueMicrotask(() => {
         try {
-          const value = handler(this.value)
-
-          if (value instanceof MyPromise) {
-            value.then(resolve, reject)
+          const result = handler(this.#value)
+          if (result instanceof MyPromise) {
+            result.then(resolve, reject)
           } else {
-            resolve(value)
+            resolve(result)
           }
         } catch (e) {
           reject(e)
         }
       })
     }
-
-    this.handlers = []
+    this.#handlers = []
   }
 
-  resolve = (value: T | PromiseLike<T>) => {
-    this.#settle(value)
+  constructor(executor: Executor<T>) {
+    this.#status = PENDING
+    this.#isResolved = false
+
+    try {
+      executor(this.#resolve, this.#reject)
+    } catch (e) {
+      this.#reject(e)
+    }
   }
 
-  reject = (reason: any): void => {
-    this.#settle(reason, REJECTED)
+  then<R = T>(onFulfilled?: OnFulfilled<T, R>, onRejected?: OnRejected<R>): MyPromise<R> {
+    const handler: Handler<T> = {
+      onFulfilled: typeof onFulfilled === 'function' ? onFulfilled : (v: T) => v as any,
+      onRejected:
+        typeof onRejected === 'function'
+          ? onRejected
+          : (err: any) => {
+              throw err
+            },
+      resolve: () => {},
+      reject: () => {},
+    }
+
+    const promise = new MyPromise<R>((res, rej) => {
+      handler.resolve = res
+      handler.reject = rej
+    })
+
+    this.#handlers.push(handler)
+
+    if (this.#status !== PENDING) {
+      this.#execute()
+    }
+
+    return promise
   }
 
-  catch<R = T>(onRejected?: OnRejected<R>): MyPromise<R> {
-    return this.then(undefined, onRejected)
+  catch<R = never>(onRejected?: OnRejected<R>): MyPromise<T | R> {
+    return this.then<T | R>(undefined, onRejected)
   }
 
-  static resolve() {
-    throw new Error('Not implemented')
+  static resolve<T>(value: T): MyPromise<T> {
+    return new MyPromise<T>((res) => res(value))
   }
 
-  static reject() {
-    throw new Error('Not implemented')
+  static reject<T = never>(value: any): MyPromise<T> {
+    return new MyPromise<T>((_, rej) => rej(value))
   }
 }
 
@@ -155,12 +138,13 @@ export class MyPromise<T> {
 // console.log(p4) // Expected: MyPromise { status: 'fulfilled', value: 1 } (settled once)
 
 // --- Step 6: then / catch and chaining ---
+// console.log('--- Step 6: then / catch and chaining ---')
 // const p5 = new MyPromise((resolve: any) => resolve(42))
-// p5.then((v: any) => console.log(v))  // Expected: 42
+// p5.then((v: any) => console.log(v)) // Expected: 42
 //
 // const p6 = new MyPromise((resolve: any) => resolve(1))
 //   .then((v: any) => v + 1)
-//   .then((v: any) => console.log(v))   // Expected: 2
+//   .then((v: any) => console.log(v)) // Expected: 2
 //
 // const p7 = new MyPromise((_: any, reject: any) => reject('error'))
 // p7.catch((e: any) => console.log(e))  // Expected: "error"
