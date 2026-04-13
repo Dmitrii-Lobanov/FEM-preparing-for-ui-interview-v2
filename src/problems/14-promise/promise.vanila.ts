@@ -51,7 +51,30 @@ export class MyPromise<T> {
   }
 
   then<R = T>(onFulfilled?: OnFulfilled<T, R>, onRejected?: OnRejected<R>): MyPromise<R> {
-    throw new Error('Not implemented')
+    const handler: Handler = {
+      onFulfilled: typeof onFulfilled === 'function' ? onFulfilled : (v) => v,
+      onRejected:
+        typeof onRejected === 'function'
+          ? onRejected
+          : (v) => {
+              throw v
+            },
+      resolve: () => {},
+      reject: () => {},
+    }
+
+    const promise = new MyPromise<R>((resolve, reject) => {
+      handler.resolve = resolve
+      handler.reject = reject
+    })
+
+    this.handlers.push(handler)
+
+    if (this.status !== PENDING) {
+      this.execute()
+    }
+
+    return promise
   }
 
   #settle = (value: T | PromiseLike<T>, status = FULFILLED) => {
@@ -72,7 +95,27 @@ export class MyPromise<T> {
     }
   }
 
-  execute = () => {}
+  execute = () => {
+    for (const { onFulfilled, onRejected, resolve, reject } of this.handlers) {
+      const handler = this.status === FULFILLED ? onFulfilled : onRejected
+
+      queueMicrotask(() => {
+        try {
+          const value = handler(this.value)
+
+          if (value instanceof MyPromise) {
+            value.then(resolve, reject)
+          } else {
+            resolve(value)
+          }
+        } catch (e) {
+          reject(e)
+        }
+      })
+    }
+
+    this.handlers = []
+  }
 
   resolve = (value: T | PromiseLike<T>) => {
     this.#settle(value)
