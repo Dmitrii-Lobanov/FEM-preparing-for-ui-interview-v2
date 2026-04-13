@@ -15,7 +15,9 @@ import type { Equal, Expect } from '@course/types'
 
 /* _____________ Your Code Here _____________ */
 
-// Your implementation here
+type Merge<T1, T2> = {
+  [P in keyof T1 | keyof T2]: P extends keyof T2 ? T2[P] : P extends keyof T1 ? T1[P] : never
+}
 
 /* _____________ Test Cases _____________ */
 

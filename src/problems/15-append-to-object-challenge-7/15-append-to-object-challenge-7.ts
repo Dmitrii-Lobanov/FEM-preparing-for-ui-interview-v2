@@ -14,7 +14,9 @@ import type { Equal, Expect } from '@course/types'
 
 /* _____________ Your Code Here _____________ */
 
-// Your implementation here
+type AppendToObject<T extends object, U extends string, V> = {
+  [P in keyof T | U]: P extends keyof T ? T[P] : V
+}
 
 /* _____________ Test Cases _____________ */
 

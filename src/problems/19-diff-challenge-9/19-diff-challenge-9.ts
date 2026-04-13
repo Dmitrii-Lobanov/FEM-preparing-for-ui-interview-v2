@@ -14,7 +14,9 @@ import type { Equal, Expect } from '@course/types'
 
 /* _____________ Your Code Here _____________ */
 
-type Diff<T1 extends {}, T2 extends {}> = {}
+type Diff<O extends object, O1 extends object> = {
+  [K in keyof (O & O1) as K extends keyof (O | O1) ? never : K]: (O & O1)[K]
+}
 
 /* _____________ Test Cases _____________ */
 
