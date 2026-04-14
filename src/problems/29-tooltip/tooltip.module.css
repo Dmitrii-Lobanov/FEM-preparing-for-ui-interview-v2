@@ -15,13 +15,25 @@
 }
 
 .top {
+  top: 0;
+  transform: translateY(-100%);
+  display: block !important;
 }
 
 .bottom {
+  bottom: 0;
+  transform: translateY(100%);
+  display: block !important;
 }
 
 .left {
+  left: 0;
+  transform: translateX(-100%);
+  display: block !important;
 }
 
 .right {
+  right: 0;
+  transform: translateX(100%);
+  display: block !important;
 }
