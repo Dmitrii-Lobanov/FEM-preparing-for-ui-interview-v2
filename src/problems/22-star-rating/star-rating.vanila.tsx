@@ -13,7 +13,7 @@ type TStarRatingProps = {
 }
 
 export class StarRating extends AbstractComponent<TStarRatingProps> {
-    value: number = 0
+    value: number
 
     /**
      * Step 1: Constructor
@@ -21,6 +21,12 @@ export class StarRating extends AbstractComponent<TStarRatingProps> {
      * - Initialize this.value from config.value
      */
     constructor(props: TComponentConfig<TStarRatingProps>) {
+        super({
+            ...props,
+            listeners: ['click']
+        })
+
+        this.value = props.value ?? 0
     }
 
     /**
@@ -31,6 +37,11 @@ export class StarRating extends AbstractComponent<TStarRatingProps> {
      * - If valid: update this.value, call this.config.onValueChange, call this.render()
      */
     onClick({target}: MouseEvent): void {
+        if (target instanceof HTMLButtonElement && target.dataset.rating) {
+            this.value = Number(target.dataset.rating)
+            this.config.onValueChange?.(this.value)
+            this.render()
+        }
     }
 
     /**
@@ -49,9 +60,35 @@ export class StarRating extends AbstractComponent<TStarRatingProps> {
      * - Include a hidden <input type="hidden" value="${this.value}" aria-hidden="true" />
      */
     toHTML(): string {
+        const stars = Array.from(
+            { length: STARS_COUNT },
+            (_, index) => this.getStar(index + 1)
+        ).join('')
+
+        return `
+            <div 
+                role="radiogroup"
+                aria-label="Star rating"
+                aria-readonly="${this.config.readOnly ?? false}"
+            >
+                ${stars}
+            </div>
+        `
     }
 
     getStar = (value: number) => {
+        return `
+            <button 
+                role="radio" 
+                aria-label="Rating of ${value}"
+                aria-selected="${value == this.value}"
+                data-rating="${value}"
+                data-checked="${value <= this.value}"
+                class="${css.star}"
+            >
+                ${STAR}
+            </button>
+        `
     }
 
     /**

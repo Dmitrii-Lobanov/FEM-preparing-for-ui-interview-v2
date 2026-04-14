@@ -1,4 +1,4 @@
-import React, { useState, type PropsWithChildren, type ReactElement, type RefObject } from 'react'
+import React, { useCallback, useState, type PropsWithChildren, type ReactElement, type RefObject } from 'react'
 import flex from '@course/styles'
 import tabs from './tabs.module.css'
 import cx from '@course/cx'
@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom'
 type TTabProps = PropsWithChildren<{
   name: string
   isActive?: boolean
+  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void
 }>
 
 type TTabsProps = {
@@ -18,12 +19,24 @@ type TTabsProps = {
 /**
  * Step 1: Implement Tab component
  * - Render a <li role="presentation"> with a <button> inside
- * - Button attributes: role="tab", id="tab-{name}", data-tab-name={name},
+ * * - Button attributes: role="tab", id="tab-{name}", data-tab-name={name},
  *   aria-controls="tab-panel", aria-selected={isActive}
  */
-export function Tab({ name, isActive }: TTabProps) {
-  // TODO: implement
-  return null
+export function Tab({ name, isActive, onClick }: TTabProps) {
+  console.log(name)
+
+  return (
+    <button
+      role="tab"
+      id={`tab-${name}`}
+      data-tab-name={name}
+      aria-controls="tab-panel"
+      aria-selected={isActive}
+      onClick={onClick}
+    >
+      {name}
+    </button>
+  )
 }
 
 /**
@@ -45,8 +58,27 @@ export function Tab({ name, isActive }: TTabProps) {
  * - If target ref exists, use createPortal with a <div role="tabpanel"> wrapper instead
  */
 export function Tabs({ defaultTab, children, target }: TTabsProps) {
-  // TODO: implement
-  return <div>TODO: Implement Tabs</div>
+  const [activeTab, setActiveTab] = useState(defaultTab || children[0].props.name)
+
+  const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    const target = e.target as HTMLButtonElement
+    if (target.dataset.tabName) {
+      setActiveTab(target.dataset.tabName)
+    }
+  }, [])
+
+  return (
+    <>
+      <ul role="tablist" className={cx(flex.flexRowGap8)}>
+        {children.map((child) => (
+          <Tab key={child.props.name} name={child.props.name} isActive={child.props.name === activeTab} onClick={handleClick} />
+        ))}
+      </ul>
+      <section role="tabpanel" id="tab-panel" aria-labelledby="tab-{activeTab}">
+        {children.find((child) => child.props.name === activeTab)?.props.children}
+      </section>
+    </>
+  )
 }
 
 /**

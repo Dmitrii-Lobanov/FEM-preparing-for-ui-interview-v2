@@ -1,6 +1,7 @@
 import css from './star-rating.module.css'
 import flex from '@course/styles'
 import cx from '@course/cx'
+import { useState } from 'react'
 
 /**
  * Expected input:
@@ -28,8 +29,38 @@ import cx from '@course/cx'
 
 const STAR = '⭐️'
 const STARS_COUNT = 5
-type TProps = {}
+type TProps = {
+  value: number
+  onChange: (value: number) => void
+  readonly?: boolean
+}
+
+const Star = ({value, onChange}: {value: number, onChange: (value: number) => void, readonly?: boolean}) => {
+  return (
+    Array.from({ length: STARS_COUNT }, (_, index) => {
+      return (
+        <button
+          key={index}
+          role="radio"
+          aria-selected={value <= index + 1}
+          aria-label={`Rating of ${index + 1}`}
+          data-rating={index + 1}
+          data-checked={value >= index + 1}
+          className={cx(css.star)}
+          onClick={() => onChange(index + 1)}
+        >
+          {STAR}
+        </button>
+      )
+    })
+  )
+}
 
 export const StarRating = (props: TProps) => {
-  return <div>TODO: Implement</div>
+  const [rating, setRating] = useState(props.value)
+
+  return <div>
+    <Star value={rating} onChange={setRating} />
+    <p>Star rating: {rating}</p>
+  </div>
 }

@@ -18,8 +18,23 @@ import cx from '@course/cx'
  * 4. Add CSS — use styles and cx() for className composition
  */
 
-type TProps = {}
+type TProps = {
+  items: TAccordionItem[]
+}
+
+type TAccordionItem = {
+  id: string;
+  title: string;
+  content: string;
+}
 
 export const Accordion = (props: TProps) => {
-  return <div>{/* TODO: implement */}</div>
+  return <div>
+    {props.items.map((item) => (
+      <details key={item.id} className={cx(css.details)}>
+        <summary className={cx(css.summary)}>{item.title}</summary>
+        <p className={cx(css.content)}>{item.content}</p>
+      </details>
+    ))}
+  </div>
 }

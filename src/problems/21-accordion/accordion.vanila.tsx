@@ -29,7 +29,30 @@ type TAccordionProps = {
 }
 
 export class Accordion extends AbstractComponent<TAccordionProps> {
+  constructor(config: TComponentConfig<TAccordionProps>) {
+    super(config)
+  }
+
   toHTML(): string {
-    return ``
+    const content = this.config.items.map((item) => this.getItemTemplate(item)).join('')
+
+    return `
+      <ul>
+        ${content}
+      </ul>
+    `
+  }
+
+  getItemTemplate(item: TAccordionItem): string {
+    console.log(styles.details.toString())
+
+    return `
+      <li>
+        <details class="${styles.details}">
+          <summary class="${styles.summary}">${item.title}</summary>
+          <p>${item.content}</p>
+        </details>
+      </li>
+    `
   }
 }
