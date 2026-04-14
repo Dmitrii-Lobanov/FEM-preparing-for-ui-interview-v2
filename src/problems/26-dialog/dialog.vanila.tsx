@@ -38,8 +38,15 @@ export class Dialog extends AbstractComponent<TDialogProps> {
    * - Use cx() and styles utilities for layout (padding24, bNone, br8, flexRowBetween, flexGap8)
    */
   toHTML(): string {
-    // TODO: implement
-    return ''
+    return `
+      <dialog class="${cx(css.container, styles.padding16)}">
+        <section>${this.config.content}</section>
+        <footer class="${cx(styles.flexRowGap8)}">
+          <button data-action="confirm">Confirm</button>
+          <button data-action="cancel">Cancel</button>
+        </footer>
+      </dialog>
+    `
   }
 
   /**
@@ -47,7 +54,7 @@ export class Dialog extends AbstractComponent<TDialogProps> {
    * - Query the <dialog> element from this.container and store in #dialogElement
    */
   afterRender(): void {
-    // TODO: implement
+    this.#dialogElement = this.container!.querySelector('dialog')
   }
 
   /**
@@ -65,8 +72,20 @@ export class Dialog extends AbstractComponent<TDialogProps> {
    * - If "confirm": call onConfirm() and close()
    * - If "cancel": call onCancel() and close()
    */
-  onClick(event: MouseEvent): void {
-    // TODO: implement
+  onClick({target}: MouseEvent): void {
+    if (target instanceof HTMLElement && target.dataset.action) {
+      const action = target.dataset.action
+      
+      if (action === 'confirm') {
+        this.config.onConfirm()
+      }
+
+      if (action === 'cancel') {
+        this.config.onCancel()
+      }
+
+      this.close()
+    }
   }
 
   /**
@@ -75,10 +94,10 @@ export class Dialog extends AbstractComponent<TDialogProps> {
    * - close(): call #dialogElement.close()
    */
   open(): void {
-    // TODO: implement
+    this.#dialogElement?.showModal()
   }
 
   close(): void {
-    // TODO: implement
+    this.#dialogElement?.close()
   }
 }

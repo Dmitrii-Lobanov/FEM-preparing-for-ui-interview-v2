@@ -27,6 +27,29 @@ type TDialogProps = {
  * - Use cx() and styles utilities for layout (padding24, bNone, br8, flexRowBetween, flexGap8)
  */
 export function Dialog({ open, onConfirm, onCancel, children }: TDialogProps) {
-  // TODO: implement
-  return <div>TODO: Implement</div>
+  const dialogRef = useRef<HTMLDialogElement>(null)
+
+  useEffect(() => {
+    if (open) {
+      dialogRef.current?.showModal()
+    } else {
+      dialogRef.current?.close()
+    }
+  }, [open])
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDialogElement>) => {
+    if (e.target === dialogRef.current) {
+      onCancel()
+    }
+  }
+
+  return (
+    <dialog ref={dialogRef} className={cx(styles.padding16, css.container)} onClick={handleBackdropClick}>
+      <section>{children}</section>
+      <footer className={cx(styles.flexRowGap8)}>
+        <button onClick={onConfirm}>Confirm</button>
+        <button onClick={onCancel}>Cancel</button>
+      </footer>
+    </dialog>
+  )
 }
