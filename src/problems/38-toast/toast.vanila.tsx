@@ -2,10 +2,12 @@ import { AbstractComponent, type TComponentConfig } from '@course/utils'
 import css from './toast.module.css'
 import flex from '@course/styles'
 import cx from '@course/cx'
+
 type TToastItem = {
   id: string
   text: string
 }
+
 /**
  * Expected usage:
  *   const toast = new Toast({ root: containerElement })
@@ -15,10 +17,11 @@ type TToastItem = {
  * Toast item: { id: '1', text: 'Vanilla Toast: 1' }
  */
 let toastInstanceID = 0
+const TIMEOUT = 3000
+
 export class Toast extends AbstractComponent<object> {
   id = toastInstanceID++
   listElement: HTMLUListElement | null = null
-  container: HTMLElement | null = null;
   // Step 1: Constructor — pass listeners: ['animationend'], store a unique instance id
   // Step 2: toast(item) — create a DOM element from getToastTemplate(item),
   //   append it to this.listElement,
@@ -34,7 +37,42 @@ export class Toast extends AbstractComponent<object> {
       listeners: ['animationend']
     })
   }
+
   toHTML() {
     return `<ul aria-live="polite" aria-relevant="additions removals" id="toast-instance-${this.id}"></ul>`
+  }
+
+  getToastItem(item: TToastItem) {
+    return `
+      <li role="status" data-removed="false" data-id="${item.id}" id="${item.id}" class="${css.toast}">
+        <p>${item.text}</p>
+      </li>
+    `
+  }
+
+  afterRender() {
+    this.listElement = document.getElementById(`toast-instance-${this.id}`) as HTMLUListElement
+  }
+
+  onAnimationend(event: AnimationEvent) {
+    const element = event.target as HTMLLIElement
+    if (element.dataset.removed === 'true') {
+      element.remove()
+    }
+  }
+
+  toast({id, text}: TToastItem) {
+    const wrapper = document.createElement('div')
+    wrapper.innerHTML = this.getToastItem({id, text})
+    const element = wrapper.firstElementChild!
+    this.listElement?.appendChild(element)
+    
+    element.classList.add(css.fadeIn);
+    
+    setTimeout(() => {
+      element.classList.remove(css.fadeIn)
+      element.classList.add(css.fadeOut)
+      element.dataset.removed = 'true'
+    }, TIMEOUT)
   }
 }
