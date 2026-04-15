@@ -130,8 +130,6 @@ export function Tooltip({ children, content, position = 'top', boundary }: Toolt
         
     }, [isVisible, position]);
     
-    console.log(isVisible, content, position, 'tooltipPosition', tooltipPosition, positions[tooltipPosition]);
-
   return (
     <div 
         ref={containerRef} 
