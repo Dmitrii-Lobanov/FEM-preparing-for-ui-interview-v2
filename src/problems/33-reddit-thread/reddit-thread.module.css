@@ -1,1 +1,66 @@
-/* Student solution styles */
+.comment {
+    border: 1px solid #ccc;
+    background-color: white;
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 16px;
+}
+
+.nickname {
+    font-weight: bold;
+}
+
+.date {
+    color: #666;
+    font-style: italic;
+}
+
+:global(:root) {
+  interpolate-size: allow-keywords;
+}
+
+.details {
+    margin-top: 8px;
+}
+
+.details::details-content {
+    transition: all 0.3s ease-in-out, content-visibility 0.3s allow-discrete;
+    block-size: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.details[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+}
+
+/* Fallback sweep animation for opening in browsers that do not support ::details-content completely */
+.details[open] .repliesList {
+    animation: sweep 0.3s ease-in-out;
+}
+
+@keyframes sweep {
+    0% { opacity: 0; transform: translateY(-5px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #007bff;
+    user-select: none;
+    transition: color 0.2s;
+}
+
+.summary:hover {
+    color: #0056b3;
+}
+
+.repliesList {
+    padding-left: 16px;
+    margin-top: 8px;
+    margin-bottom: 0;
+    list-style: none;
+    border-left: 1px dashed #ccc;
+}

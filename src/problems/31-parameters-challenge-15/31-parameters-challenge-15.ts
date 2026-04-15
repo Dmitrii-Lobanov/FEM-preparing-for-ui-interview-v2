@@ -13,7 +13,9 @@ import type { Equal, Expect } from '@course/types'
 
 /* _____________ Your Code Here _____________ */
 
-type MyParameters = {};
+type MyParameters<F extends (...args: any[]) => any> = F extends (...args: infer Params) => any
+  ? Params
+  : never
 
 /* _____________ Test Cases _____________ */
 

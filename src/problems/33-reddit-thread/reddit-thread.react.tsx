@@ -47,11 +47,43 @@ export interface IRedditComment {
  * - Map over comments array, rendering <RedditComment> for each
  */
 export const RedditThread = ({ comments }: { comments: IRedditComment[] }) => {
+  console.log(comments)
+
   return (
-    <ul></ul>
+    <ul>
+      {comments.map((comment) => (
+        <li key={comment.id} className={cx(css.comment)}>
+          <section className={cx(flex.flexRowBetween)}>
+            <div className={cx(css.nickname)}>{comment.nickname}</div>
+            <div className={cx(css.date)}>{comment.date}</div>
+          </section>
+
+          <section>{comment.text}</section>
+          <RedditComment {...comment} />
+        </li>
+      ))}
+    </ul>
   )
 }
 
-function RedditComment({ id, replies, text, nickname, date }: IRedditComment) {
-  return null;
+function RedditComment(comment: IRedditComment) {
+  if (!comment.id) return null;
+
+  return (
+    <details className={cx(css.details)}>
+      <summary className={cx(css.summary)}>Replies</summary>
+        <ul className={cx(css.repliesList)}>
+          {comment.replies.map((reply) => (
+            <li key={reply.id} className={cx(css.comment)}>
+              <section className={cx(flex.flexRowBetween)}>
+                <div className={cx(css.nickname)}>{reply.nickname}</div>
+                <div className={cx(css.date)}>{reply.date}</div>
+              </section>
+
+              <section>{reply.text}</section>
+            </li>
+          ))}
+        </ul>
+    </details>
+  )
 }
