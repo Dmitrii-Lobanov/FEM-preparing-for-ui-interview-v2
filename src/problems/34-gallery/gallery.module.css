@@ -8,8 +8,32 @@
   color: white;
   font-size: 2rem;
   z-index: 10;
+  position: absolute;
+  height: 100%;
 }
-.gallery {}
+
+.button:first-child {
+  left: 0;
+}
+
+.button:last-child {
+  right: 132px;
+}
+
+.gallery {
+  max-height: 500px;
+  overflow: hidden;
+}
+
 .image img {}
-.image {}
-.image__list {}
+
+.image {
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.image__list {
+  display: flex;
+  flex-direction: row;
+  transition: transform 0.3s ease-in-out;
+}
